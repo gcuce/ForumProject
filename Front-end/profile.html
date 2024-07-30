@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <title>Profil Sayfası</title>
+    <link rel="stylesheet" href="styles/profile.css">
+    <style>
+        .tabcontent {
+            display: none;
+        }
+        .post-container {
+            margin-bottom: 20px;
+        }
+        .post-actions {
+            margin-top: 10px;
+        }
+        .post-actions button {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="pages">
+            <img class="logo_image" src="/docs/WG.png" alt="logo">
+            <nav>
+                <a class="page_label" href="/">Ana Sayfa</a>
+                <a class="page_label" href="/create_post">Gönderi Oluştur</a>
+                <a class="page_label" href="/profile">Profil</a>
+                <form action="/logout" method="post" class="logout_form">
+                    <button type="submit">Çıkış Yap</button>
+                </form>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="prof_container">
+        <div class="prof_image_container">
+            <div class="image_frame">
+                <img class="prof_image" src="https://st5.depositphotos.com/1915171/63123/v/450/depositphotos_631235886-stock-illustration-user-profile-icon-vector-avatar.jpg" alt="Profil Resmi">
+            </div>
+        </div>
+        
+        <div class="profil_details">  
+            <p><strong>Kullanıcı Adı:</strong> <span id="username">{{.Username}}</span></p>
+            <p><strong>Email:</strong> <span id="email">{{.Email}}</span></p>
+            <p><strong>Gönderi Sayısı:</strong> <span id="gonderisayisi">{{len .Posts}}</span></p>
+        </div>
+        {{ if .IsAdmin }}
+        <a class="admin_link" href="/panel">Admin Paneli Giriş</a>
+        {{ end }}
+        {{ if .IsModerator }}
+        <a class="admin_link" href="/moderator">Moderatör Paneli Giriş</a>
+        {{ end }}
+    </div>
+    
+    <div class="tabs">
+        <button class="tablinks" onclick="openTab(event, 'posts')">Gönderiler</button>
+        <button class="tablinks" onclick="openTab(event, 'likes')">Etkileşimde Bulunulan Gönderiler</button>
+        <button class="tablinks" onclick="openTab(event, 'comments')">Yorumlar</button>
+    </div>
+    
+    <div id="posts" class="tabcontent">
+        {{ range .Posts }}
+        <div class="post-container">
+            <div class="post-header">
+                <h2 class="post-title">{{.Title}}</h2>
+                <p class="post-category">{{.CategoryName}}</p>
+            </div>
+            <div class="post-body">
+                <p>{{.Content}}</p>
+                {{ if .Image }}
+                <img src="{{.Image}}" alt="Gönderi Resmi" style="max-width: 100%; height: auto;">
+                {{ end }}
+            </div>
+            <div class="post-footer">
+                <p>Beğeni Sayısı: {{.Likes}}</p>
+                <p>Beğenmeme Sayısı: {{.Dislikes}}</p>
+            </div>
+            <div class="post-actions">
+                <form action="/posts/{{.ID}}/edit" method="get" style="display: inline;">
+                    <button type="submit">Düzenle</button>
+                </form>
+                <form action="/posts/{{.ID}}/delete" method="post" style="display: inline;">
+                    <button type="submit">Sil</button>
+                </form>
+            </div>
+        </div>
+        {{ end }}
+    </div>
+    
+    <div id="likes" class="tabcontent">
+        <h3>Beğendiğim Gönderiler</h3>
+        {{ range .LikedPosts }}
+        <div class="post-container">
+            <div class="post-header">
+                <h2 class="post-title">{{.Title}}</h2>
+                <p class="post-category">{{.CategoryName}}</p>
+            </div>
+            <div class="post-body">
+                <p>{{.Content}}</p>
+                {{ if .Image }}
+                <img src="{{.Image}}" alt="Gönderi Resmi" style="max-width: 100%; height: auto;">
+                {{ end }}
+            </div>
+            <div class="post-footer">
+                <p>Beğeni Sayısı: {{.Likes}}</p>
+                <p>Beğenmeme Sayısı: {{.Dislikes}}</p>
+            </div>
+        </div>
+        {{ end }}
+        
+        <h3>Beğenmediğim Gönderiler</h3>
+        {{ range .DislikedPosts }}
+        <div class="post-container">
+            <div class="post-header">
+                <h2 class="post-title">{{.Title}}</h2>
+                <p class="post-category">{{.CategoryName}}</p>
+            </div>
+            <div class="post-body">
+                <p>{{.Content}}</p>
+                {{ if .Image }}
+                <img src="{{.Image}}" alt="Gönderi Resmi" style="max-width: 100%; height: auto;">
+                {{ end }}
+            </div>
+            <div class="post-footer">
+                <p>Beğeni Sayısı: {{.Likes}}</p>
+                <p>Beğenmeme Sayısı: {{.Dislikes}}</p>
+            </div>
+        </div>
+        {{ end }}
+    </div>
+    
+    <div id="comments" class="tabcontent">
+        {{ range .Comments }}
+        <div class="comment-container">
+            <div class="comment-header">
+                <p class="comment-author">Yorum Yapan: {{.Username}}</p>
+                <p class="comment-date">Tarih: {{.CreatedAt}}</p>
+            </div>
+            <div class="comment-body">
+                <p>{{.Content}}</p>
+            </div>
+        </div>
+        {{ end }}
+    </div>
+    
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // Varsayılan olarak ilk tabı aç
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector(".tablinks").click();
+        });
+    </script>
+</body>
+</html>

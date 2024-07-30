@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h2 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+        }
+        form {
+            display: inline-block;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+        input[type="text"] {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Moderator Requests</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Requests}}
+            <tr>
+                <td>{{.UserID}}</td>
+                <td>{{.Username}}</td>
+                <td>{{.Email}}</td>
+                <td>
+                    <form method="post">
+                        <input type="hidden" name="action" value="accept">
+                        <input type="hidden" name="userId" value="{{.UserID}}">
+                        <button type="submit">Accept</button>
+                    </form>
+                    <form method="post">
+                        <input type="hidden" name="action" value="reject">
+                        <input type="hidden" name="userId" value="{{.UserID}}">
+                        <button type="submit">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+
+    <h2>Reported Posts</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Report ID</th>
+                <th>Post ID</th>
+                <th>Moderator ID</th>
+                <th>Reason</th>
+                <th>Created At</th>
+                <th>Feedback</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Reports}}
+            <tr>
+                <td>{{.ID}}</td>
+                <td>{{.PostID}}</td>
+                <td>{{.ModeratorID}}</td>
+                <td>{{.Reason}}</td>
+                <td>{{.CreatedAt}}</td>
+                <td>
+                    <form method="post">
+                        <input type="hidden" name="reportId" value="{{.ID}}">
+                        <input type="text" name="feedback" placeholder="Add feedback" required>
+                        <button type="submit" name="action" value="feedback">Submit Feedback</button>
+                    </form>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+
+    <h2>Manage User Roles</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Admin</th>
+                <th>Moderator</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Users}}
+            <tr>
+                <td>{{.ID}}</td>
+                <td>{{.Username}}</td>
+                <td>{{.Email}}</td>
+                <td>
+                    <form method="post" action="/updateRole">
+                        <input type="hidden" name="userId" value="{{.ID}}">
+                        <input type="checkbox" name="isAdmin" {{if .IsAdmin}}checked{{end}}> Admin
+                </td>
+                <td>
+                    <input type="checkbox" name="isModerator" {{if .IsModerator}}checked{{end}}> Moderator
+                </td>
+                <td>
+                    <button type="submit" name="action" value="updateRole">Update Role</button>
+                    </form>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</body>
+</html>
